@@ -15,7 +15,7 @@ const openai = new OpenAIApi(configuration);
 let theFileName = "nothing";
 let filopolio = null;
 async function imageToText(name) {
-    const res = T.recognize("./images/" + name, "eng", { logger: e => null})
+    const res = T.recognize("./tmp/images/" + name, "eng", { logger: e => null})
     .then(out => {
         // console.log(out.data.text);
         return {
@@ -59,7 +59,7 @@ async function questionToAnswer(prompt) {
 function getLengthOfFilesInImages() {
     // const dir = './images';
     // let allImages = []
-    const length = fs.readdirSync('./images').length
+    const length = fs.readdirSync('./tmp/images').length
     return length;
 }
 function generateFileName(num) {
@@ -75,13 +75,13 @@ function deleteFirstImages() {
         //     console.log('File deleted!');
         // });
     // }
-    const folder = './images/';
+    const folder = './tmp/images/';
     let count = 0;
     const filesToBeDeleted = 5;
     fs.readdirSync(folder).forEach(file => {
         count++;
         if (count < filesToBeDeleted + 1) {
-            fs.unlink('./images/' + file, function (err) {
+            fs.unlink('./tmp/images/' + file, function (err) {
                 if (err) throw err;
                 console.log('File deleted!');
             });
