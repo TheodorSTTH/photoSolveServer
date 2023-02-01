@@ -5,6 +5,7 @@ require("dotenv").config();
 const multer = require("multer");
 const { Configuration, OpenAIApi } = require("openai");
 const fs = require('fs');
+const helmet = require('helmet')
 
 const configuration = new Configuration({
     apiKey: process.env.OPEN_AI_KEY
@@ -34,9 +35,9 @@ async function questionToAnswer(prompt) {
     try {
         const response = await openai.createCompletion({
             model: "text-davinci-003",
-            prompt: "Answer the following as short as possible: " + prompt + " ###",
-            max_tokens: 64,
-            temperature: 0,
+            prompt: "Write a short answer to the following: " + prompt + " ###",
+            max_tokens: 84,
+            temperature: 0.4,
             top_p: 1.0,
             frequency_penalty: 0,
             presence_penalty: 0
@@ -87,11 +88,13 @@ function deleteFirstImages() {
         }
     });
 }
+let fileType = "";
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, "images")
     },
     filename: (req, file, cb) => {
+        if (!(file.mimetype[0] === "i" && file.mimetype[1] === "m" && file.mimetype[2] === "a" && file.mimetype[3] === "g" && file.mimetype[4] === "e")) return cb(JSON.stringify({error: true, data: "You can only upload images"}))
         // const randIntString = Math.floor(Math.random() * 91).toString()
         const lengthOfImagesFolder = getLengthOfFilesInImages();
         if (lengthOfImagesFolder > 45) {
@@ -109,7 +112,8 @@ const storage = multer.diskStorage({
 const upload = multer({storage: storage})
 
 app.set("view engine", "ejs");
-
+app.use(helmet())
+app.disable('x-powered-by')
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     next();
@@ -123,7 +127,7 @@ app.post("/upload", upload.single("image"), async (req, res) => {
     // console.log(req)
     const text = await imageToText(theFileName);
     const answer = await questionToAnswer(text.data);
-    res.send(answer);
+    res.send({...answer, "yo": JSON.stringify(fileType)});
 })
 
 app.listen(3001)
