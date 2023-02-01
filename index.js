@@ -7,7 +7,6 @@ const { Configuration, OpenAIApi } = require("openai");
 const fs = require('fs');
 
 const configuration = new Configuration({
-    // apiKey: "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"
     apiKey: process.env.OPEN_AI_KEY
 })
 const openai = new OpenAIApi(configuration);
@@ -15,7 +14,7 @@ const openai = new OpenAIApi(configuration);
 let theFileName = "nothing";
 let filopolio = null;
 async function imageToText(name) {
-    const res = T.recognize("./tmp/images/" + name, "eng", { logger: e => null})
+    const res = T.recognize("./images/" + name, "eng", { logger: e => null})
     .then(out => {
         // console.log(out.data.text);
         return {
@@ -59,7 +58,7 @@ async function questionToAnswer(prompt) {
 function getLengthOfFilesInImages() {
     // const dir = './images';
     // let allImages = []
-    const length = fs.readdirSync('./tmp/images').length
+    const length = fs.readdirSync('./images').length
     return length;
 }
 function generateFileName(num) {
@@ -75,13 +74,13 @@ function deleteFirstImages() {
         //     console.log('File deleted!');
         // });
     // }
-    const folder = './tmp/images/';
+    const folder = './images/';
     let count = 0;
     const filesToBeDeleted = 5;
     fs.readdirSync(folder).forEach(file => {
         count++;
         if (count < filesToBeDeleted + 1) {
-            fs.unlink('./tmp/images/' + file, function (err) {
+            fs.unlink('./images/' + file, function (err) {
                 if (err) throw err;
                 console.log('File deleted!');
             });
